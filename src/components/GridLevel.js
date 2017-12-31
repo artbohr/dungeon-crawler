@@ -11,17 +11,26 @@ class GridLevel extends Component {
       for (let k = 0; k < this.props.cols; k++) {
         //cellClass = this.props.grid[i][k] === ? "floor cell" : "wall cell";
         switch(this.props.grid[i][k]){
-          case 0:
+          case "wall":
             cellClass = "cell wall"
             break;
-          case 1:
+          case "floor":
             cellClass = "cell floor"
             break;
-          case 2:
+          case "player":
             cellClass = "cell player"
             break;
-          case 3:
+          case "enemy":
             cellClass = "cell enemy"
+            break;
+          case "health":
+            cellClass = "cell health"
+            break;
+          case "weapon":
+            cellClass = "cell weapon"
+            break;
+          case "level":
+            cellClass = "cell level"
             break;
 
           default:
@@ -33,7 +42,6 @@ class GridLevel extends Component {
           <GameCell
             cellClass={cellClass}
             key={`key:${i}_${k}`}
-            //colorizeCell={this.props.colorizeCell}
             i={i}
             k={k}
           />
