@@ -11,8 +11,8 @@ class App extends Component {
 
     this.state = {
       grid: Array(this.rows).fill(Array(this.cols).fill("floor")),
-      playerRow: 15,
-      playerCol: 25,
+      playerRow: 1,
+      playerCol: 1,
       health: 100,
       enemy: 50,
       weapon: 10,
@@ -21,8 +21,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.generateLevel();
-    //this.generateRooms();
+    this.generateLevel(this.generateWalls());
+    //this.generateRooms3();
     document.addEventListener("keydown", this.movePlayer);
   }
 
@@ -30,18 +30,121 @@ class App extends Component {
     document.removeEventListener("keydown", this.movePlayer);
   }
 
-  generateLevel = () => {
-    //this.generateRooms2();
+/*
+  generateRooms = () => {
+    let newGrid = this.deepCopy(this.state.grid);
+    let rNum = Math.floor(Math.random() * 10) + 4;
+
+    //while (rNum < 30 || col_pos < 30){
+    // generate 1 cubic room
+      for (let i = row_pos; i < rNum; i++) {
+        for (let k = col_pos; k < rNum; k++) {
+          // place wall cell
+          console.log(i,k)
+          if (i === row_pos || i === rNum-1 || k === col_pos || k===rNum-1) newGrid[i][k] = "wall";
+
+          }
+        }
+      //}
+
+    this.setState({ grid: newGrid });
+  };*/
+  /*
+  generateRooms2 = () => {
+    /*
+    while( !secondline && r + rNum < this.rows )
+  	//offset = 2
+  	height = 2
+  	r = 48
+  	secondline = false
+
+  	if r +rNum > 49 && !secondline
+  	r = 0
+  	secondline = true
+  	height + 12
+
+  	total = rNum + offset
+
+  	2=>12, 14=>24, 26=>36, 38=>48
+
+
+  	reserve (r c) = 2, 2  going to -> rNum (5)
+  	[
+  	[2,2][2,3][2,4][2,5][2,6]
+  	[3,2]			          [3,6]
+  	[4,2]			          [4,6]
+  	[5,2]			          [5,6]
+  	[6,2][6,3][6,4][6,5][6,6]
+  	]
+  //offset = 2
+  r = rNum//+offset
+  c = rNum//+offset
+
+  new rNum ()
+
+    let result = []
+    let secondline = false;
+    let offset = 2;
+    let rNum = Math.floor(Math.random() * 10) + 4;
+    let row = 2;
+    let col = 2;
+
+    while (row + rNum < this.rows) {
+
+      result.push([row+rNum+offset, rNum]);
+      row+=(rNum+offset)
+      rNum = Math.floor(Math.random() * 10) + 4;
+
+
+      if (row + rNum+offset > 49 && !secondline){
+        console('ch')
+      	row = 0
+      	secondline = true
+      	col += 12
+      }
+    }
+    console.log(result);
+  };*/
+
+  generateWalls = () => {
+    let walls = [];
+    let total = 0;
+    let rNum1;
+
+    while (total<25) {
+      rNum1 = Math.floor(Math.random() * 6) + 2;
+      walls.push(total+rNum1);
+      total += rNum1;
+    }
+
+    console.log(walls);
+    console.log(total);
+    return walls;
+  };
+
+  generateLevel = (walls) => {
+    let rNum = Math.floor(Math.random() * 45) + 5;
+    let limit = 2;
+    //this.generateRooms();
     //console.log("generating");
     let newGrid = this.deepCopy(this.state.grid);
     for (let i = 0; i < this.rows; i++) {
       //if (i === 0 || i === 29) continue;
       for (let k = 0; k < this.cols; k++) {
+        rNum = Math.floor(Math.random() * 45) + 5;
         // wall edges
-        if (k === 0 || k === 49 || i === 0 || i === 29) {
+        //
+        if (k === 0 || k === 49 || i === 0 || i === 29 || walls.indexOf(i) > -1) {
           newGrid[i][k] = "wall";
-          continue;
-        } /*
+          //newGrid[i][Math.floor(walls.indexOf(i)+10/2)] = "floor";
+          //continue;
+        }
+        if (walls.indexOf(i) > -1 && i!==0 && i !==29 && limit > 0){
+          newGrid[i][rNum] = "floor";
+          limit -= 1;
+        }
+
+        /*
         if (i===1 && k===1){
           newGrid[i][k] = "level"
         }*/
@@ -55,6 +158,7 @@ class App extends Component {
         if (i === this.state.playerRow && k === this.state.playerCol)
           newGrid[i][k] = "player";
       }
+      limit = 2
     }
     this.setState({ grid: newGrid });
   };
@@ -72,25 +176,25 @@ class App extends Component {
     switch (event.keyCode) {
       case 65:
         if (this.resolveCollision(grid[playerRow][playerCol - 1])) {
-          this.setState({ playerCol: this.state.playerCol - 1 });
+          this.setState({ playerCol: playerCol - 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "left");
         }
         break;
       case 68:
         if (this.resolveCollision(grid[playerRow][playerCol + 1])) {
-          this.setState({ playerCol: this.state.playerCol + 1 });
+          this.setState({ playerCol: playerCol + 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "right");
         }
         break;
       case 83:
         if (this.resolveCollision(grid[playerRow + 1][playerCol])) {
-          this.setState({ playerRow: this.state.playerRow + 1 });
+          this.setState({ playerRow: playerRow + 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "down");
         }
         break;
       case 87:
         if (this.resolveCollision(grid[playerRow - 1][playerCol])) {
-          this.setState({ playerRow: this.state.playerRow - 1 });
+          this.setState({ playerRow: playerRow - 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "up");
         }
         break;
