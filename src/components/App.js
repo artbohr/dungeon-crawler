@@ -18,8 +18,9 @@ class App extends Component {
       enemyHP: 50,
       weapon: 10,
       level: 1,
-      fightingNow: ""//,
-      //game: "alive"
+      fightingNow: "",
+      gameLog: "Nothing Happened Yet"/*,
+      rdyToMove: false*/
     };
   }
 
@@ -137,6 +138,34 @@ class App extends Component {
     }
   };
 
+  // update player position
+  updateGrid = (i, k, where) => {
+    let newGrid = this.deepCopy(this.state.grid);
+
+    newGrid[i][k] = "player";
+
+    switch (where) {
+      case "left":
+        newGrid[i][k + 1] = "floor";
+        break;
+      case "right":
+        newGrid[i][k - 1] = "floor";
+        break;
+      case "up":
+        newGrid[i + 1][k] = "floor";
+        break;
+      case "down":
+        newGrid[i - 1][k] = "floor";
+        break;
+      default:
+        break;
+    }
+    this.setState({
+      grid: newGrid
+    });
+
+  };
+
   // resolve object interactions
   resolveCollision = (obj, row, col) => {
     // if is a floor cell return true right away
@@ -151,39 +180,51 @@ class App extends Component {
         this.fight(row, col);
         // if enemy is alive => resolve fight
         if (this.state.enemyHP > 0){
-          document.getElementById("gameLog").textContent =
-            `Player hits enemy for ${this.state.weapon} DMG, enemy HP: ${this.state.enemyHP}`;
+          this.setState({
+            gameLog: `Player hits enemy for
+             ${this.state.weapon} DMG, enemy HP: ${this.state.enemyHP}`
+          });
+
           return false;
         // if enemy is dead => eliminate enemy
         } else {
-            document.getElementById("gameLog").textContent = "Player killed enemy";
-            this.setState({ enemyHP: 50});
+            this.setState({
+              enemyHP: 50,
+              gameLog:"Player killed enemy"
+            });
+
             // if player died return game over msg
             //if (this.state.health<1) document.getElementById("gameLog").textContent = "GAME OVER";
             return true;
         }
       // increase health amount
       case "health":
-        this.setState({ health: this.state.health + 10 });
-        document.getElementById("gameLog").textContent =
-          "Player Picks +10 HP";
+        this.setState({
+          health: this.state.health + 10,
+          gameLog:"Player Picks +10 HP"
+        });
         return true;
       // increase weapon power
       case "weapon":
         if (this.state.weapon<50) {
-          this.setState({ weapon: this.state.weapon + 10 });
-          document.getElementById("gameLog").textContent =
-            `Player upgrades weapon to ${weapons[this.state.weapon]}`;
+          this.setState({
+            weapon: this.state.weapon + 10,
+            gameLog:`Player upgrades weapon to ${weapons[this.state.weapon+10]}`
+          });
+
         } else {
-          document.getElementById("gameLog").textContent =
-            "Maximum weapon reached";
+            this.setState({
+              gameLog:"Maximum weapon reached"
+            });
         }
         return true;
       // advance to next lvl
       case "level":
-        document.getElementById("gameLog").textContent =
-          "Player advances to next level";
-        this.setState({ level: this.state.level + 1 });
+        this.setState({
+          level: this.state.level + 1,
+          gameLog: "Player advances to next level"
+        });
+
         this.clear();
         this.generateLevel(this.generateWalls());
         break;
@@ -214,31 +255,6 @@ class App extends Component {
     }
   };
 
-  // update player position
-  updateGrid = (i, k, where) => {
-    let newGrid = this.deepCopy(this.state.grid);
-
-    newGrid[i][k] = "player";
-
-    switch (where) {
-      case "left":
-        newGrid[i][k + 1] = "floor";
-        break;
-      case "right":
-        newGrid[i][k - 1] = "floor";
-        break;
-      case "up":
-        newGrid[i + 1][k] = "floor";
-        break;
-      case "down":
-        newGrid[i - 1][k] = "floor";
-        break;
-      default:
-        break;
-    }
-    this.setState({ grid: newGrid });
-  };
-
   // make a deep copy of the grid
   deepCopy = arr => {
     return JSON.parse(JSON.stringify(arr));
@@ -259,7 +275,7 @@ class App extends Component {
         <GridLevel grid={this.state.grid} rows={this.rows} cols={this.cols}/>
         <div className="b1">
           <p>Last Action:</p>
-          <p><span id="gameLog">Nothing Happened Yet</span></p>
+          <p><span id="gameLog">{this.state.gameLog}</span></p>
         </div>
         <div className="b2">
           <p>Player <span className="cell player"> </span></p>

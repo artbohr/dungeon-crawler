@@ -22,7 +22,6 @@ class GridLevel extends Component {
             break;
           case "enemy":
             cellClass = "cell enemy"
-            //cellHP = 50;
             break;
           case "health":
             cellClass = "cell health"
