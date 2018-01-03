@@ -9,7 +9,7 @@ class GridLevel extends Component {
     // creates cells on the grid
     for (let i = 0; i < this.props.rows; i++) {
       for (let k = 0; k < this.props.cols; k++) {
-        //cellClass = this.props.grid[i][k] === ? "floor cell" : "wall cell";
+
         switch(this.props.grid[i][k]){
           case "wall":
             cellClass = "cell wall"
@@ -22,6 +22,7 @@ class GridLevel extends Component {
             break;
           case "enemy":
             cellClass = "cell enemy"
+            //cellHP = 50;
             break;
           case "health":
             cellClass = "cell health"
@@ -42,8 +43,6 @@ class GridLevel extends Component {
           <GameCell
             cellClass={cellClass}
             key={`key:${i}_${k}`}
-            i={i}
-            k={k}
           />
         )
       }

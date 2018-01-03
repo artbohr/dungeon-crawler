@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import GridLevel from "./GridLevel";
-//import Player from "./Player";
 import "../styles/App.css";
 
 const weapons = {10:"Fists", 20:"Knife", 30:"Pistol", 40:"AK-47", 50:"RPG"};
@@ -10,16 +9,17 @@ class App extends Component {
     super(props);
     this.rows = 30;
     this.cols = 50;
-    //this.classes = ["cell wall","cell player","cell enemy","cell health","cell weapon","cell level","cell floor"];
 
     this.state = {
       grid: Array(this.rows).fill(Array(this.cols).fill("floor")),
       playerRow: 1,
       playerCol: 1,
       health: 100,
-      enemy: 50,
+      enemyHP: 50,
       weapon: 10,
-      level: 1
+      level: 1,
+      fightingNow: ""//,
+      //game: "alive"
     };
   }
 
@@ -61,11 +61,11 @@ class App extends Component {
           newGrid[i][k] = "wall";
         }
         // enemies
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 160) === 1) newGrid[i][k] = "enemy";
-        // health
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 600) === 1) newGrid[i][k] = "health";
-        // weapon upgrade
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 800) === 1) newGrid[i][k] = "weapon";
+        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 100) === 1) newGrid[i][k] = "enemy";
+        // health boosts
+        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 450) === 1) newGrid[i][k] = "health";
+        // weapon upgrades
+        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 650) === 1) newGrid[i][k] = "weapon";
         // player
         if (i === this.state.playerRow && k === this.state.playerCol) newGrid[i][k] = "player";
 
@@ -77,37 +77,57 @@ class App extends Component {
     this.setState({ grid: newGrid });
   };
 
+  // set all the grid to floor cells
   clear = () => {
     this.setState({
       grid: Array(this.rows).fill(Array(this.cols).fill("floor"))
     });
   };
 
+  gameOver = () =>{
+    //this.setState({game: "dead"});
+    //document.getElementById("gameLog").textContent = "GAME OVER";
+    this.newGame();
+  }
+
+  newGame = () =>{
+    this.clear();
+    this.generateLevel(this.generateWalls());
+
+    this.setState({
+      //game: "New Game",
+      health: 100
+    });
+  }
+
+  // move the player to selected (pressed key) location
   movePlayer = event => {
+    //if (this.state.game !== "alive") return;
+
     // shorter vars to check types of cells
     let { grid, playerRow, playerCol } = this.state;
 
     switch (event.keyCode) {
       case 65:
-        if (this.resolveCollision(grid[playerRow][playerCol - 1])) {
+        if (this.resolveCollision(grid[playerRow][playerCol - 1], playerRow, playerCol-1)) {
           this.setState({ playerCol: playerCol - 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "left");
         }
         break;
       case 68:
-        if (this.resolveCollision(grid[playerRow][playerCol + 1])) {
+        if (this.resolveCollision(grid[playerRow][playerCol + 1], playerRow, playerCol+1)) {
           this.setState({ playerCol: playerCol + 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "right");
         }
         break;
       case 83:
-        if (this.resolveCollision(grid[playerRow + 1][playerCol])) {
+        if (this.resolveCollision(grid[playerRow + 1][playerCol], playerRow + 1, playerCol)) {
           this.setState({ playerRow: playerRow + 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "down");
         }
         break;
       case 87:
-        if (this.resolveCollision(grid[playerRow - 1][playerCol])) {
+        if (this.resolveCollision(grid[playerRow - 1][playerCol], playerRow - 1, playerCol)) {
           this.setState({ playerRow: playerRow - 1 });
           this.updateGrid(this.state.playerRow, this.state.playerCol, "up");
         }
@@ -118,14 +138,30 @@ class App extends Component {
   };
 
   // resolve object interactions
-  resolveCollision = obj => {
+  resolveCollision = (obj, row, col) => {
+    // if is a floor cell return true right away
+    if (obj === "floor") return true;
+
     switch (obj) {
       // wall on this cell
       case "wall":
         return false;
       // enemy on this cell
       case "enemy":
-        return false;
+        this.fight(row, col);
+        // if enemy is alive => resolve fight
+        if (this.state.enemyHP > 0){
+          document.getElementById("gameLog").textContent =
+            `Player hits enemy for ${this.state.weapon} DMG, enemy HP: ${this.state.enemyHP}`;
+          return false;
+        // if enemy is dead => eliminate enemy
+        } else {
+            document.getElementById("gameLog").textContent = "Player killed enemy";
+            this.setState({ enemyHP: 50});
+            // if player died return game over msg
+            //if (this.state.health<1) document.getElementById("gameLog").textContent = "GAME OVER";
+            return true;
+        }
       // increase health amount
       case "health":
         this.setState({ health: this.state.health + 10 });
@@ -142,7 +178,6 @@ class App extends Component {
           document.getElementById("gameLog").textContent =
             "Maximum weapon reached";
         }
-
         return true;
       // advance to next lvl
       case "level":
@@ -153,16 +188,33 @@ class App extends Component {
         this.generateLevel(this.generateWalls());
         break;
 
-      // floor
       default:
-        return true;
+        break;
     }
   };
 
-  fight = () => {
+  // resolve fights
+  fight = (row, col) => {
+    // check who are you fighting, if is a new enemy set it's HP to 50
+    if (this.state.fightingNow !== `${row}_${col}`){
+      this.setState({
+        enemyHP: 50,
+        fightingNow: `${row}_${col}`
+      });
+    }
 
+    this.setState({
+      health: this.state.health - 10,
+      enemyHP: this.state.enemyHP - this.state.weapon,
+    });
+    // player died
+    if (this.state.health < 1) {
+      this.setState({ health: 0 });
+      this.gameOver();
+    }
   };
 
+  // update player position
   updateGrid = (i, k, where) => {
     let newGrid = this.deepCopy(this.state.grid);
 
@@ -184,10 +236,10 @@ class App extends Component {
       default:
         break;
     }
-    //newGrid[i][k] = 2;
     this.setState({ grid: newGrid });
   };
 
+  // make a deep copy of the grid
   deepCopy = arr => {
     return JSON.parse(JSON.stringify(arr));
   };
@@ -196,16 +248,15 @@ class App extends Component {
     return (
       <div>
         <h1>Roguelike Dungeon Crawler</h1>
-        {/*<button onClick={this.generateLevel}>generate </button>*/}
+        {/*<button onClick={this.newGame}>New Game</button>*/}
         <div className="menu">
           {` Level:  ${this.state.level}`}
           <br />
           {`Health:  ${this.state.health}`}
           {` Weapon: ${weapons[this.state.weapon]}`}
           <br />
-          {/*` Row: ${this.state.playerRow} Col: ${this.state.playerCol}`*/}
         </div>
-        <GridLevel grid={this.state.grid} rows={this.rows} cols={this.cols} />
+        <GridLevel grid={this.state.grid} rows={this.rows} cols={this.cols}/>
         <div className="b1">
           <p>Last Action:</p>
           <p><span id="gameLog">Nothing Happened Yet</span></p>
