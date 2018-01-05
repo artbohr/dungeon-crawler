@@ -16,21 +16,22 @@ class App extends Component {
       playerCol: 1,
       health: 100,
       enemyHP: 50,
+      bossHP: 250,
       weapon: 10,
       level: 1,
       fightingNow: "",
-      gameLog: "Nothing Happened Yet"/*,
-      rdyToMove: false*/
+      gameLog: "Nothing Happened Yet",
+      rdyToMove: true
     };
   }
 
   componentDidMount() {
     this.generateLevel(this.generateWalls());
-    document.addEventListener("keydown", this.movePlayer);
+    window.addEventListener("keydown", this.movePlayer);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.movePlayer);
+    window.removeEventListener("keydown", this.movePlayer);
   }
 
   generateWalls = () => {
@@ -59,10 +60,17 @@ class App extends Component {
           newGrid[i][k] = "floor";
         // wall edges
         } else if (k === 0 || k === 49 || i === 0 || i === 29 || walls.indexOf(i) > -1) {
-          newGrid[i][k] = "wall";
+          if (this.state.level !== 4){
+            newGrid[i][k] = "wall";
+          } else {
+            newGrid[i][k] = "boss";
+          }
+
         }
         // enemies
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 100) === 1) newGrid[i][k] = "enemy";
+        if (this.state.level !== 4){
+          if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 100) === 1) newGrid[i][k] = "enemy";
+        }
         // health boosts
         if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 450) === 1) newGrid[i][k] = "health";
         // weapon upgrades
@@ -73,7 +81,7 @@ class App extends Component {
       }
     }
     // generate "level" cell
-    newGrid[Math.floor(Math.random() * 28)+2][Math.floor(Math.random() * 47)+2] = "level";
+    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 27)+2][Math.floor(Math.random() * 47)+2] = "level";
     // set the new grid state
     this.setState({ grid: newGrid });
   };
@@ -81,14 +89,16 @@ class App extends Component {
   // set all the grid to floor cells
   clear = () => {
     this.setState({
-      grid: Array(this.rows).fill(Array(this.cols).fill("floor"))
+      grid: Array(this.rows).fill(Array(this.cols).fill("floor")),
     });
   };
 
   gameOver = () =>{
-    //this.setState({game: "dead"});
-    //document.getElementById("gameLog").textContent = "GAME OVER";
-    this.newGame();
+    this.setState({
+      grid: Array(this.rows).fill(Array(this.cols).fill("wall"))
+    });
+
+    setTimeout(()=> this.newGame(), 3000);
   }
 
   newGame = () =>{
@@ -96,14 +106,27 @@ class App extends Component {
     this.generateLevel(this.generateWalls());
 
     this.setState({
-      //game: "New Game",
-      health: 100
+        health: 100,
+        level: 1,
+        gameLog: "You Just Died"
     });
+  };
+
+  // you won the game
+  winGame = () => {
+    this.setState({
+        grid: Array(this.rows).fill(Array(this.cols).fill("player")),
+        gameLog: "You WON! The end."
+      });
   }
 
   // move the player to selected (pressed key) location
   movePlayer = event => {
-    //if (this.state.game !== "alive") return;
+    //check if delay is done
+    if (!this.state.rdyToMove || this.state.health<1) return;
+
+    // prevent simultaneous calculations
+    this.setState({ rdyToMove: false });
 
     // shorter vars to check types of cells
     let { grid, playerRow, playerCol } = this.state;
@@ -136,6 +159,9 @@ class App extends Component {
       default:
         break;
     }
+
+    // allow to move
+    setTimeout(() => this.setState({ rdyToMove: true }), 5);
   };
 
   // update player position
@@ -163,7 +189,6 @@ class App extends Component {
     this.setState({
       grid: newGrid
     });
-
   };
 
   // resolve object interactions
@@ -189,12 +214,10 @@ class App extends Component {
         // if enemy is dead => eliminate enemy
         } else {
             this.setState({
-              enemyHP: 50,
-              gameLog:"Player killed enemy"
+              gameLog: "Enemy Killed",
+              enemyHP: 50
             });
 
-            // if player died return game over msg
-            //if (this.state.health<1) document.getElementById("gameLog").textContent = "GAME OVER";
             return true;
         }
       // increase health amount
@@ -222,37 +245,58 @@ class App extends Component {
       case "level":
         this.setState({
           level: this.state.level + 1,
-          gameLog: "Player advances to next level"
+          gameLog: `Player advances to next level`
         });
 
         this.clear();
         this.generateLevel(this.generateWalls());
         break;
 
+      case "boss":
+        this.fight(row, col, "boss");
+        // if boss is alive => resolve fight
+        if (this.state.bossHP > 0){
+          this.setState({
+            gameLog: `Player hits BOSS for
+             ${this.state.weapon} DMG, BOSS HP: ${this.state.bossHP}`
+          });
+
+          return false;
+
+        } else {
+          this.winGame();
+          break;
+        }
       default:
         break;
     }
   };
 
   // resolve fights
-  fight = (row, col) => {
+  fight = (row, col, entity) => {
     // check who are you fighting, if is a new enemy set it's HP to 50
-    if (this.state.fightingNow !== `${row}_${col}`){
+    if (entity !== "boss"){
+      if (this.state.fightingNow !== `${row}_${col}`){
+        this.setState({
+          enemyHP: 50,
+          fightingNow: `${row}_${col}`
+        });
+      }
+
       this.setState({
-        enemyHP: 50,
-        fightingNow: `${row}_${col}`
+        health: this.state.health - 10,
+        enemyHP: this.state.enemyHP - this.state.weapon,
+      });
+
+    // if it's a boss fight
+    } else {
+      this.setState({
+        health: this.state.health - 20,
+        bossHP: this.state.bossHP - this.state.weapon,
       });
     }
 
-    this.setState({
-      health: this.state.health - 10,
-      enemyHP: this.state.enemyHP - this.state.weapon,
-    });
-    // player died
-    if (this.state.health < 1) {
-      this.setState({ health: 0 });
-      this.gameOver();
-    }
+    if (this.state.health < 1) this.gameOver();
   };
 
   // make a deep copy of the grid
@@ -264,7 +308,6 @@ class App extends Component {
     return (
       <div>
         <h1>Roguelike Dungeon Crawler</h1>
-        {/*<button onClick={this.newGame}>New Game</button>*/}
         <div className="menu">
           {` Level:  ${this.state.level}`}
           <br />
@@ -283,6 +326,7 @@ class App extends Component {
           <p>Health <span className="cell health"> </span></p>
           <p>Weapon <span className="cell weapon"> </span></p>
           <p>Lvl Exit <span className="cell level"> </span></p>
+          <p>BOSS <span className="cell boss"> </span></p>
         </div>
       </div>
     );

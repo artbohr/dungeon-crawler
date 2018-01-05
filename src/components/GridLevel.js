@@ -12,29 +12,31 @@ class GridLevel extends Component {
 
         switch(this.props.grid[i][k]){
           case "wall":
-            cellClass = "cell wall"
+            cellClass = "cell wall";
             break;
           case "floor":
-            cellClass = "cell floor"
+            cellClass = "cell floor";
             break;
           case "player":
-            cellClass = "cell player"
+            cellClass = "cell player";
             break;
           case "enemy":
-            cellClass = "cell enemy"
+            cellClass = "cell enemy";
             break;
           case "health":
-            cellClass = "cell health"
+            cellClass = "cell health";
             break;
           case "weapon":
-            cellClass = "cell weapon"
+            cellClass = "cell weapon";
             break;
           case "level":
-            cellClass = "cell level"
+            cellClass = "cell level";
+            break;
+          case "boss":
+            cellClass = "cell boss";
             break;
 
           default:
-            cellClass = "cell floor"
             break;
 
         }
@@ -43,7 +45,7 @@ class GridLevel extends Component {
             cellClass={cellClass}
             key={`key:${i}_${k}`}
           />
-        )
+        );
       }
     }
 
