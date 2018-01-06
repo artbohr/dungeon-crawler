@@ -5,7 +5,7 @@ class GameCell extends Component {
   render() {
     return (
       <div
-        className={this.props.cellClass}
+        className={`${this.props.cellClass} ${this.props.extraClass}`}
       />
     );
   }

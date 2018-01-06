@@ -21,7 +21,7 @@ class App extends Component {
       level: 1,
       fightingNow: "",
       gameLog: "Nothing Happened Yet",
-      rdyToMove: true
+      rdyToMove: true,
     };
   }
 

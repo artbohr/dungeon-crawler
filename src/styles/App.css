@@ -62,3 +62,9 @@ p {
   background-color: #FF2800;
   border: 1px dashed #FE6F5E;
   border-radius: 10%; }
+
+.notHidden {
+  opacity: 1; }
+
+.hidden {
+  opacity: 0; }
