@@ -12,8 +12,8 @@ class App extends Component {
 
     this.state = {
       grid: Array(this.rows).fill(Array(this.cols).fill("floor")),
-      playerRow: 1,
-      playerCol: 1,
+      playerRow: 2,
+      playerCol: 2,
       health: 100,
       enemyHP: 50,
       bossHP: 250,
@@ -40,7 +40,7 @@ class App extends Component {
     let rNum1;
 
     while (total<24) {
-      rNum1 = Math.floor(Math.random() * 4) + 2;
+      rNum1 = Math.floor(Math.random() * 4) + 3;
       walls.push(total+rNum1);
       total += rNum1;
     }
@@ -52,17 +52,25 @@ class App extends Component {
     for (let i = 0; i < this.rows; i++) {
 
       // generate door/doors
-      let rNum = Math.floor(Math.random() * 44) + 4;
+      let rNum = Math.floor(Math.random() * 43) + 4;
 
       for (let k = 0; k < this.cols; k++) {
         // place a door
-        if (k===rNum && walls.indexOf(i) > -1){
+        if (k===rNum && walls.indexOf(i) > -1 &&
+        k !== 0 && k !== 49 && i !== 0 && i !== 29 &&
+        k !== 1 && k !== 48 && i !== 1 && i !== 28){
+
           newGrid[i][k] = "floor";
         // wall edges
-        } else if (k === 0 || k === 49 || i === 0 || i === 29 || walls.indexOf(i) > -1) {
+      } else if (
+          k === 0 || k === 49 || i === 0 || i === 29 ||
+          k === 1 || k === 48 || i === 1 || i === 28 ||
+          walls.indexOf(i) > -1) {
+
           if (this.state.level !== 4){
             newGrid[i][k] = "wall";
-          } else {
+          }
+          else {
             newGrid[i][k] = "boss";
           }
 
@@ -81,7 +89,7 @@ class App extends Component {
       }
     }
     // generate "level" cell
-    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 27)+2][Math.floor(Math.random() * 47)+2] = "level";
+    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 42)+4] = "level";
     // set the new grid state
     this.setState({ grid: newGrid });
   };
