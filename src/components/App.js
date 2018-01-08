@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import GridLevel from "./GridLevel";
+import WelcomeBox from "./WelcomeBox";
+import UpperUI from "./UpperUI";
+import BottomUI from "./BottomUI";
 import "../styles/App.css";
 
 const weapons = {10:"Fists", 20:"Knife", 30:"Pistol", 40:"AK-47", 50:"RPG"};
@@ -22,6 +25,7 @@ class App extends Component {
       fightingNow: "",
       gameLog: "Nothing Happened Yet",
       rdyToMove: true,
+      introBox: true
     };
   }
 
@@ -89,7 +93,7 @@ class App extends Component {
       }
     }
     // generate "level" cell
-    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 42)+4] = "level";
+    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 41)+4] = "level";
     // set the new grid state
     this.setState({ grid: newGrid });
   };
@@ -103,7 +107,9 @@ class App extends Component {
 
   gameOver = () =>{
     this.setState({
-      grid: Array(this.rows).fill(Array(this.cols).fill("wall"))
+      grid: Array(this.rows).fill(Array(this.cols).fill("wall")),
+      playerCol: 2,
+      playerRow: 2
     });
 
     setTimeout(()=> this.newGame(), 3000);
@@ -124,7 +130,7 @@ class App extends Component {
   winGame = () => {
     this.setState({
         grid: Array(this.rows).fill(Array(this.cols).fill("player")),
-        gameLog: "You WON! The end."
+        gameLog: "You WON!"
       });
   }
 
@@ -169,7 +175,7 @@ class App extends Component {
     }
 
     // allow to move
-    setTimeout(() => this.setState({ rdyToMove: true }), 5);
+    setTimeout(() => this.setState({ rdyToMove: true }), 15);
   };
 
   // update player position
@@ -312,30 +318,21 @@ class App extends Component {
     return JSON.parse(JSON.stringify(arr));
   };
 
+  hideIntro = () => {
+    this.setState({
+      introBox: false
+    });
+  };
+
   render() {
     return (
       <div>
+        <WelcomeBox hideIntro={this.hideIntro} introBox={this.state.introBox}/>
         <h1>Roguelike Dungeon Crawler</h1>
-        <div className="menu">
-          {` Level:  ${this.state.level}`}
-          <br />
-          {`Health:  ${this.state.health}`}
-          {` Weapon: ${weapons[this.state.weapon]}`}
-          <br />
-        </div>
-        <GridLevel grid={this.state.grid} rows={this.rows} cols={this.cols}/>
-        <div className="b1">
-          <p>Last Action:</p>
-          <p><span id="gameLog">{this.state.gameLog}</span></p>
-        </div>
-        <div className="b2">
-          <p>Player <span className="cell player"> </span></p>
-          <p>Enemy <span className="cell enemy"> </span></p>
-          <p>Health <span className="cell health"> </span></p>
-          <p>Weapon <span className="cell weapon"> </span></p>
-          <p>Lvl Exit <span className="cell level"> </span></p>
-          <p>BOSS <span className="cell boss"> </span></p>
-        </div>
+        <UpperUI introBox={this.state.introBox} level={this.state.level}
+           weapons={weapons} weapon={this.state.weapon} health={this.state.health}/>
+        <GridLevel introBox={this.state.introBox} grid={this.state.grid} rows={this.rows} cols={this.cols}/>
+        <BottomUI introBox={this.state.introBox} gameLog={this.state.gameLog}/>
       </div>
     );
   }
