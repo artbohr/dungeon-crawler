@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import GridLevel from "./GridLevel";
+import DungeonGrid from "./DungeonGrid";
 import WelcomeBox from "./WelcomeBox";
 import UpperUI from "./UpperUI";
 import BottomUI from "./BottomUI";
@@ -21,7 +21,7 @@ class App extends Component {
       enemyHP: 50,
       bossHP: 250,
       weapon: 10,
-      level: 1,
+      dungeon: 1,
       fightingNow: "",
       gameLog: "Nothing Happened Yet",
       rdyToMove: true,
@@ -30,7 +30,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.generateLevel(this.generateWalls());
+    this.generateDungeon(this.generateWalls());
     window.addEventListener("keydown", this.movePlayer);
   }
 
@@ -51,7 +51,7 @@ class App extends Component {
     return walls;
   };
 
-  generateLevel = (walls) => {
+  generateDungeon = (walls) => {
     let newGrid = this.deepCopy(this.state.grid);
     for (let i = 0; i < this.rows; i++) {
 
@@ -71,7 +71,7 @@ class App extends Component {
           k === 1 || k === 48 || i === 1 || i === 28 ||
           walls.indexOf(i) > -1) {
 
-          if (this.state.level !== 4){
+          if (this.state.dungeon !== 4){
             newGrid[i][k] = "wall";
           }
           else {
@@ -80,7 +80,7 @@ class App extends Component {
 
         }
         // enemies
-        if (this.state.level !== 4){
+        if (this.state.dungeon !== 4){
           if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 100) === 1) newGrid[i][k] = "enemy";
         }
         // health boosts
@@ -92,8 +92,8 @@ class App extends Component {
 
       }
     }
-    // generate "level" cell
-    if (this.state.level !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 41)+4] = "level";
+    // generate "dungeon exit" cell
+    if (this.state.dungeon !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 41)+4] = "dungeon";
     // set the new grid state
     this.setState({ grid: newGrid });
   };
@@ -117,11 +117,11 @@ class App extends Component {
 
   newGame = () =>{
     this.clear();
-    this.generateLevel(this.generateWalls());
+    this.generateDungeon(this.generateWalls());
 
     this.setState({
         health: 100,
-        level: 1,
+        dungeon: 1,
         gameLog: "You Just Died"
     });
   };
@@ -255,15 +255,15 @@ class App extends Component {
             });
         }
         return true;
-      // advance to next lvl
-      case "level":
+      // advance to next dungeon
+      case "dungeon":
         this.setState({
-          level: this.state.level + 1,
-          gameLog: `Player advances to next level`
+          dungeon: this.state.dungeon + 1,
+          gameLog: `Player advances to next dungeon`
         });
 
         this.clear();
-        this.generateLevel(this.generateWalls());
+        this.generateDungeon(this.generateWalls());
         break;
 
       case "boss":
@@ -329,9 +329,9 @@ class App extends Component {
       <div>
         <WelcomeBox hideIntro={this.hideIntro} introBox={this.state.introBox}/>
         <h1>Roguelike Dungeon Crawler</h1>
-        <UpperUI introBox={this.state.introBox} level={this.state.level}
+        <UpperUI introBox={this.state.introBox} dungeon={this.state.dungeon}
            weapons={weapons} weapon={this.state.weapon} health={this.state.health}/>
-        <GridLevel introBox={this.state.introBox} grid={this.state.grid} rows={this.rows} cols={this.cols}/>
+        <DungeonGrid introBox={this.state.introBox} grid={this.state.grid} rows={this.rows} cols={this.cols}/>
         <BottomUI introBox={this.state.introBox} gameLog={this.state.gameLog}/>
       </div>
     );

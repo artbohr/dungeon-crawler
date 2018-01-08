@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import GameCell from "./GameCell";
 
-class GridLevel extends Component {
+class DungeonGrid extends Component {
   render() {
     if (!this.props.introBox) {
       let cellClass = "";
@@ -83,4 +83,4 @@ class GridLevel extends Component {
   }
 }
 
-export default GridLevel;
+export default DungeonGrid;

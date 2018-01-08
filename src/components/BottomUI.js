@@ -14,7 +14,7 @@ class BottomUI extends Component {
             <p>Enemy <span className="cell enemy"> </span></p>
             <p>Health <span className="cell health"> </span></p>
             <p>Weapon <span className="cell weapon"> </span></p>
-            <p>Lvl Exit <span className="cell level"> </span></p>
+            <p>Dungeon Exit <span className="cell dungeon"> </span></p>
             <p>BOSS <span className="cell boss"> </span></p>
           </div>
         </div>

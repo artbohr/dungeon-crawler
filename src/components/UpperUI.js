@@ -5,7 +5,7 @@ class UpperUI extends Component {
     if (!this.props.introBox) {
       return (
         <div className="menu">
-          <span className="menuLevel">{` Level:  ${this.props.level}`}</span>
+          <span className="menuDungeon">{` Dungeon:  ${this.props.dungeon}`}</span>
           <br />
           <span className="menuHealth">{`Health:  ${this.props.health}`}</span>
           <span className="menuWeapon">{` Weapon: ${this.props.weapons[this.props.weapon]}`}</span>

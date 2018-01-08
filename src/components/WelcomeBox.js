@@ -15,7 +15,7 @@ class WelcomeBox extends Component {
             <img className="key" alt="d_image" src={"http://www.clipartoday.com/_thumbspd/computer/computer/computer_key_D_9012.png"}/>
           </div>
 
-          <h3 className="instructions2"> Reach level 4 and beat the Boss to win.</h3>
+          <h3 className="instructions2"> Reach dungeon 4 and beat the Boss to win.</h3>
           <h4 className="instructions3"> Click to begin </h4>
 
         </div>

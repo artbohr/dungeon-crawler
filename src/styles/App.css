@@ -14,12 +14,12 @@ h1 {
 .menu {
   text-align: center; }
 
-.menuLevel, .menuHealth, .menuWeapon {
+.menuDungeon, .menuHealth, .menuWeapon {
   font-size: 15px;
   padding-left: 10px;
   padding-right: 10px; }
 
-.menuLevel {
+.menuDungeon {
   background-color: purple; }
 
 .menuHealth {
@@ -68,7 +68,7 @@ p {
 .weapon {
   background-color: orange; }
 
-.level {
+.dungeon {
   background-color: purple;
   border: 1px solid green; }
 
