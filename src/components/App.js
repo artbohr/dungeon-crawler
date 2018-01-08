@@ -81,7 +81,7 @@ class App extends Component {
         }
         // enemies
         if (this.state.dungeon !== 4){
-          if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 100) === 1) newGrid[i][k] = "enemy";
+          if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 80) === 1) newGrid[i][k] = "enemy";
         }
         // health boosts
         if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 450) === 1) newGrid[i][k] = "health";
@@ -298,14 +298,14 @@ class App extends Component {
       }
 
       this.setState({
-        health: this.state.health - 10,
+        health: this.state.health - (Math.floor(Math.random() * 15) +5),
         enemyHP: this.state.enemyHP - this.state.weapon,
       });
 
     // if it's a boss fight
     } else {
       this.setState({
-        health: this.state.health - 20,
+        health: this.state.health - (Math.floor(Math.random() * 28) +15),
         bossHP: this.state.bossHP - this.state.weapon,
       });
     }
