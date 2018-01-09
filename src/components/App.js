@@ -18,8 +18,11 @@ class App extends Component {
       playerRow: 2,
       playerCol: 2,
       health: 100,
+      playerLevel: 1,
+      playerXP: 0,
+      playerAttack: 3,
       enemyHP: 50,
-      bossHP: 250,
+      bossHP: 300,
       weapon: 10,
       dungeon: 1,
       fightingNow: "",
@@ -81,19 +84,19 @@ class App extends Component {
         }
         // enemies
         if (this.state.dungeon !== 4){
-          if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 80) === 1) newGrid[i][k] = "enemy";
+          if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 55) === 1) newGrid[i][k] = "enemy";
         }
         // health boosts
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 450) === 1) newGrid[i][k] = "health";
+        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 255) === 1) newGrid[i][k] = "health";
         // weapon upgrades
-        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 650) === 1) newGrid[i][k] = "weapon";
+        if (newGrid[i][k] === "floor" && Math.floor(Math.random() * 350) === 1) newGrid[i][k] = "weapon";
         // player
         if (i === this.state.playerRow && k === this.state.playerCol) newGrid[i][k] = "player";
 
       }
     }
     // generate "dungeon exit" cell
-    if (this.state.dungeon !== 4) newGrid[Math.floor(Math.random() * 25)+4][Math.floor(Math.random() * 41)+4] = "dungeon";
+    if (this.state.dungeon !== 4) newGrid[Math.floor(Math.random() * 21)+4][Math.floor(Math.random() * 41)+4] = "dungeon";
     // set the new grid state
     this.setState({ grid: newGrid });
   };
@@ -109,7 +112,14 @@ class App extends Component {
     this.setState({
       grid: Array(this.rows).fill(Array(this.cols).fill("wall")),
       playerCol: 2,
-      playerRow: 2
+      playerRow: 2,
+      dungeon: 1,
+      health: 100,
+      level: 1,
+      playerXP: 0,
+      playerAttack: 3,
+      weapon: 10,
+      rdyToMove: false
     });
 
     setTimeout(()=> this.newGame(), 3000);
@@ -120,9 +130,8 @@ class App extends Component {
     this.generateDungeon(this.generateWalls());
 
     this.setState({
-        health: 100,
-        dungeon: 1,
-        gameLog: "You Just Died"
+        gameLog: "You Just Died",
+        rdyToMove: true
     });
   };
 
@@ -175,7 +184,7 @@ class App extends Component {
     }
 
     // allow to move
-    setTimeout(() => this.setState({ rdyToMove: true }), 15);
+    setTimeout(() => this.setState({ rdyToMove: true }), 10);
   };
 
   // update player position
@@ -221,16 +230,27 @@ class App extends Component {
         if (this.state.enemyHP > 0){
           this.setState({
             gameLog: `Player hits enemy for
-             ${this.state.weapon} DMG, enemy HP: ${this.state.enemyHP}`
+             ${(this.state.weapon + this.state.playerAttack)} DMG, enemy HP: ${this.state.enemyHP}`
           });
 
           return false;
         // if enemy is dead => eliminate enemy
         } else {
             this.setState({
-              gameLog: "Enemy Killed",
-              enemyHP: 50
+              gameLog: "Enemy Killed, Player gained 45 XP",
+              enemyHP: 50,
+              playerXP: this.state.playerXP + 45
             });
+
+            if (this.state.playerXP >= 100) {
+              this.setState({
+                gameLog: "Level up! +35 HP +3 Attack",
+                playerLevel: this.state.playerLevel + 1,
+                health: this.state.health + 35,
+                playerAttack: this.state.playerAttack + 3,
+                playerXP: this.state.playerXP - 100
+              });
+            }
 
             return true;
         }
@@ -272,7 +292,7 @@ class App extends Component {
         if (this.state.bossHP > 0){
           this.setState({
             gameLog: `Player hits BOSS for
-             ${this.state.weapon} DMG, BOSS HP: ${this.state.bossHP}`
+             ${(this.state.weapon + this.state.playerAttack)} DMG, BOSS HP: ${this.state.bossHP}`
           });
 
           return false;
@@ -299,14 +319,14 @@ class App extends Component {
 
       this.setState({
         health: this.state.health - (Math.floor(Math.random() * 15) +5),
-        enemyHP: this.state.enemyHP - this.state.weapon,
+        enemyHP: this.state.enemyHP - (this.state.weapon + this.state.playerAttack),
       });
 
     // if it's a boss fight
     } else {
       this.setState({
         health: this.state.health - (Math.floor(Math.random() * 28) +15),
-        bossHP: this.state.bossHP - this.state.weapon,
+        bossHP: this.state.bossHP - (this.state.weapon + this.state.playerAttack),
       });
     }
 
@@ -329,8 +349,12 @@ class App extends Component {
       <div>
         <WelcomeBox hideIntro={this.hideIntro} introBox={this.state.introBox}/>
         <h1>Roguelike Dungeon Crawler</h1>
-        <UpperUI introBox={this.state.introBox} dungeon={this.state.dungeon}
-           weapons={weapons} weapon={this.state.weapon} health={this.state.health}/>
+        <UpperUI
+          introBox={this.state.introBox} dungeon={this.state.dungeon}
+          weapons={weapons} weapon={this.state.weapon} health={this.state.health}
+          playerXP={this.state.playerXP} playerLevel={this.state.playerLevel}
+          playerAttack={this.state.playerAttack}
+        />
         <DungeonGrid introBox={this.state.introBox} grid={this.state.grid} rows={this.rows} cols={this.cols}/>
         <BottomUI introBox={this.state.introBox} gameLog={this.state.gameLog}/>
       </div>

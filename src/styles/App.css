@@ -14,7 +14,7 @@ h1 {
 .menu {
   text-align: center; }
 
-.menuDungeon, .menuHealth, .menuWeapon {
+.menuDungeon, .menuHealth, .menuWeapon, .menuXP, .menuLevel, .menuAttack {
   font-size: 15px;
   padding-left: 10px;
   padding-right: 10px; }
@@ -22,8 +22,17 @@ h1 {
 .menuDungeon {
   background-color: purple; }
 
+.menuLevel {
+  background-color: #2E5894; }
+
+.menuXP {
+  background-color: #0087BD; }
+
 .menuHealth {
   background-color: green; }
+
+.menuAttack {
+  background-color: red; }
 
 .menuWeapon {
   background-color: orange; }
@@ -42,7 +51,7 @@ p {
 
 .grid {
   line-height: 2px;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 20px; }
 
 .cell {
