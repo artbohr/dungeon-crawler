@@ -1,6 +1,7 @@
 # Roguelike Dungeon Crawler Game
 
-# Project is not complete to run.
+# Live demo:
+https://artbohr.github.io/roguelike-game/
 
 ## Local Setup
 clone this repository and *run* these commands:

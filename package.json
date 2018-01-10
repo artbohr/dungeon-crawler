@@ -1,5 +1,6 @@
 {
   "name": "roguelike-game",
+  "homepage": "https://artbohr.github.io/roguelike-game",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,6 +11,7 @@
     "react-scripts": "1.0.17"
   },
   "scripts": {
+    "deploy" : "npm run build&&gh-pages -d build",
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "start-js": "react-scripts start",
@@ -18,5 +20,8 @@
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "gh-pages": "^1.1.0"
   }
 }
