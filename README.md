@@ -1,6 +1,6 @@
 # Roguelike Dungeon Crawler Game
 
-# Live demo:
+## Live Demo
 https://artbohr.github.io/roguelike-game/
 
 ## Local Setup
